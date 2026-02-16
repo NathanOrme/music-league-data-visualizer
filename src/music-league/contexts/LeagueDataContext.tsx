@@ -1,8 +1,4 @@
-import {
-  LEAGUE_CATEGORIES,
-  getLeagueDataPath,
-  type LeagueCategoryConfig,
-} from '@/config/leagues.config';
+import { LeagueTypes } from '@/shared/types/leagueTypes';
 import {
   createContext,
   useCallback,
@@ -11,156 +7,161 @@ import {
   useState,
 } from 'react';
 
-import type { League } from '@/shared/utils/dataProcessing';
-import { processLeagueZip } from '@/shared/utils/dataProcessing';
+import type {
+  League,
+  LeagueFileInfo,
+} from '@/shared/utils/dataProcessing';
+import {
+  coffeeLeagueFiles,
+  headOfSteamLeagueFiles,
+  leagueFiles,
+  processLeagueZip,
+  wordsLeagueFiles,
+} from '@/shared/utils/dataProcessing';
 import { logger } from '@/shared/utils/logger';
 import type { FC, JSX, ReactNode } from 'react';
 
 /**
  * Type representing the data structure for leagues.
- * Keys are category IDs from the configuration.
  */
-export type LeaguesData = Record<string, League[] | null>;
+export type LeaguesData = {
+  [key in LeagueTypes]: League[] | null;
+};
 
+/**
+ * Props for the LeagueDataContext.
+ */
 interface LeagueDataContextProps {
-  /** All leagues organized by category */
   leaguesData: LeaguesData;
-  /** Category configurations */
-  categories: LeagueCategoryConfig[];
-  /** Loading state */
   loading: boolean;
-  /** Error message if loading failed */
   error: string | null;
-  /** Refetch all league data */
   refetch: () => void;
 }
 
-const initialLeaguesData: LeaguesData = LEAGUE_CATEGORIES.reduce(
-  (acc, category) => {
-    acc[category.id] = null;
-    return acc;
+/**
+ * LeagueDataContext is a React context that provides league data to its children components.
+ */
+export const LeagueDataContext =
+  createContext<LeagueDataContextProps>({
+    leaguesData: {
+      [LeagueTypes.NormalLeagues]: null,
+      [LeagueTypes.WordsLeagues]: null,
+      [LeagueTypes.CoffeeLeagues]: null,
+      [LeagueTypes.HOSLeagues]: null,
+    },
+    loading: true,
+    error: null,
+    refetch: () => {
+      // empty because refetch is intentionally left empty as no re-fetch operation is required
+    },
+  });
+
+/**
+ * Configuration for league files and paths.
+ */
+const leagueConfigs: {
+  [key in LeagueTypes]: { files: LeagueFileInfo[]; path: string };
+} = {
+  [LeagueTypes.NormalLeagues]: {
+    files: leagueFiles,
+    path: '/league-zip',
   },
-  {} as LeaguesData,
-);
+  [LeagueTypes.WordsLeagues]: {
+    files: wordsLeagueFiles,
+    path: '/words-zip',
+  },
+  [LeagueTypes.CoffeeLeagues]: {
+    files: coffeeLeagueFiles,
+    path: '/coffee-zip',
+  },
+  [LeagueTypes.HOSLeagues]: {
+    files: headOfSteamLeagueFiles,
+    path: '/hos-zip',
+  },
+};
 
-export const LeagueDataContext = createContext<LeagueDataContextProps>({
-  leaguesData: initialLeaguesData,
-  categories: LEAGUE_CATEGORIES,
-  loading: true,
-  error: null,
-  refetch: () => {},
-});
-
+/**
+ * LeagueDataProvider is a React functional component that provides league data
+ * to its children components using the LeagueDataContext.
+ *
+ * @component
+ * @example
+ * return (
+ *  <LeagueDataProvider>
+ *    <YourComponent />
+ *  </LeagueDataProvider>
+ * )
+ * @returns {JSX.Element} The rendered component.
+ */
 export const LeagueDataProvider: FC<{ children: ReactNode }> = ({
   children,
 }): JSX.Element => {
-  const [leaguesData, setLeaguesData] =
-    useState<LeaguesData>(initialLeaguesData);
+  const [leaguesData, setLeaguesData] = useState<LeaguesData>({
+    [LeagueTypes.NormalLeagues]: null,
+    [LeagueTypes.WordsLeagues]: null,
+    [LeagueTypes.CoffeeLeagues]: null,
+    [LeagueTypes.HOSLeagues]: null,
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Processes a single league file with a timeout mechanism
+   * @param file League file to process
+   * @param path Path to the league file
+   * @param timeoutMs Timeout duration in milliseconds
+   * @returns Processed league data
+   */
   const processFileWithTimeout = async (
-    config: {
-      title: string;
-      fileName: string;
-      categoryId: string;
-      categoryName: string;
-    },
-    dataPath: string,
-    timeoutMs = 10000,
+    file: LeagueFileInfo,
+    path: string,
+    timeoutMs = 5000,
   ): Promise<League> => {
     return await Promise.race([
-      processLeagueZip(config, dataPath),
+      processLeagueZip(file, path),
       new Promise<League>((_, reject) => {
         return setTimeout(() => {
-          reject(new Error(`Timeout processing file ${config.fileName}`));
+          reject(
+            new Error(`Timeout processing file ${file.fileName}`),
+          );
         }, timeoutMs);
       }),
     ]);
   };
 
+  /**
+   * Loads league data from configured sources
+   * @returns Promise resolving when league data is loaded
+   */
   const loadLeagueData = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
-
     try {
-      // Process all categories in parallel
-      const results = await Promise.allSettled(
-        LEAGUE_CATEGORIES.map(async (category) => {
-          const dataPath = getLeagueDataPath(category.id);
-
-          // Process all leagues in this category
-          const leagueResults = await Promise.allSettled(
-            category.leagues.map((league) =>
-              processFileWithTimeout(
-                {
-                  title: league.title,
-                  fileName: league.fileName,
-                  categoryId: category.id,
-                  categoryName: category.name,
-                },
-                dataPath,
+      // Process leagues in parallel
+      const processedLeagues = await Promise.all(
+        Object.entries(leagueConfigs).map(
+          async ([leagueType, { files, path }]) => {
+            const processedFiles = await Promise.all(
+              files.map((file) =>
+                processFileWithTimeout(file, path, 5000),
               ),
-            ),
-          );
-
-          // Filter successful results
-          const successfulLeagues = leagueResults
-            .filter(
-              (result): result is PromiseFulfilledResult<League> =>
-                result.status === 'fulfilled',
-            )
-            .map((result) => result.value);
-
-          // Log any failures
-          leagueResults.forEach((result, index) => {
-            if (result.status === 'rejected') {
-              logger.warn(
-                `Failed to load ${category.leagues[index]?.title}: ${result.reason}`,
-              );
-            }
-          });
-
-          return {
-            categoryId: category.id,
-            leagues: successfulLeagues,
-          };
-        }),
+            );
+            return { leagueType, data: processedFiles };
+          },
+        ),
       );
 
-      // Build the new leagues data object
-      const newLeaguesData: LeaguesData = {};
-
-      results.forEach((result, index) => {
-        const category = LEAGUE_CATEGORIES[index];
-        if (!category) return;
-
-        if (result.status === 'fulfilled') {
-          newLeaguesData[category.id] =
-            result.value.leagues.length > 0 ? result.value.leagues : null;
-        } else {
-          logger.error(
-            `Failed to load category ${category.name}:`,
-            result.reason,
-          );
-          newLeaguesData[category.id] = null;
-        }
-      });
+      // Convert processed leagues to LeaguesData
+      const newLeaguesData = processedLeagues.reduce(
+        (acc, { leagueType, data }) => {
+          acc[leagueType as LeagueTypes] = data;
+          return acc;
+        },
+        {} as LeaguesData,
+      );
 
       setLeaguesData(newLeaguesData);
-
-      // Check if any data was loaded
-      const hasAnyData = Object.values(newLeaguesData).some(
-        (leagues) => leagues && leagues.length > 0,
-      );
-
-      if (!hasAnyData) {
-        setError(
-          'No league data found. Please add ZIP files to the public/data/ directory.',
-        );
-      }
     } catch (err) {
-      logger.error('Error loading league data:', err);
       setError(
         `Failed to load league data. Please try again later. ${String(err)}`,
       );
@@ -171,22 +172,32 @@ export const LeagueDataProvider: FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     loadLeagueData().catch((err) => {
-      logger.error('Error in loadLeagueData effect:', err);
-      setError(`Failed to load league data: ${String(err)}`);
+      logger.error('Error loading league data:', err);
+      setError(
+        `Failed to load league data. Please try again later. ${err}`,
+      );
     });
   }, [loadLeagueData]);
 
+  /**
+   * Refetches league data
+   * @returns Promise resolving when league data is refetched
+   */
   const handleRefetch = useCallback(() => {
     loadLeagueData().catch((err) => {
       logger.error('Error refetching league data:', err);
-      setError(`Failed to refetch league data: ${String(err)}`);
+      setError(
+        `Failed to refetch league data. Please try again later. ${err}`,
+      );
     });
   }, [loadLeagueData]);
 
+  /**
+   * Context value for league data
+   */
   const contextValue = useMemo(
     () => ({
       leaguesData,
-      categories: LEAGUE_CATEGORIES,
       loading,
       error,
       refetch: handleRefetch,

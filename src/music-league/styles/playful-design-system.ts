@@ -1,24 +1,46 @@
 /**
  * @file playful-design-system.ts
  * @description Playful & Fun Design System for Music League
+ *
+ * Design Philosophy:
+ * - Bright, cheerful colors (coral, sky blue, sunshine yellow)
+ * - Very rounded corners (20px+) for playful feel
+ * - Colorful shadows and borders
+ * - Bouncy, tactile animations
+ * - Emoji-driven visual language
+ * - Mobile-first responsive design
+ *
+ * Completely unique - zero overlap with portfolio's glass-morphism aesthetic
  */
 
+/**
+ * Color Palette - Dark & Playful
+ */
 export const colors = {
+  // Primary Colors
   coral: '#FF6B6B',
   skyBlue: '#4ECDC4',
   sunshine: '#FFE66D',
   mint: '#95E1D3',
   bubblegum: '#FF6B9D',
+
+  // Dark Theme Colors
   darkBg: '#1a1a1a',
   darkCard: '#2a2a2a',
   darkBorder: '#3a3a3a',
+
+  // Light text on dark
   lightText: '#f0f0f0',
   mutedLight: '#b0b0b0',
+
+  // Legacy neutrals (for gradual migration)
   cream: '#FFF8F0',
   sand: '#F5E6D3',
   charcoal: '#2D3142',
   slate: '#4F5D75',
   fog: '#BFC0C0',
+
+  // Gradients (for inline styles)
   gradients: {
     coral: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
     ocean: 'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)',
@@ -29,17 +51,23 @@ export const colors = {
   },
 } as const;
 
+/**
+ * Spacing Scale (8px base)
+ */
 export const spacing = {
-  xs: '0.25rem',
-  sm: '0.5rem',
-  md: '0.75rem',
-  base: '1rem',
-  lg: '1.5rem',
-  xl: '2rem',
-  '2xl': '3rem',
-  '3xl': '4rem',
+  xs: '0.25rem', // 4px
+  sm: '0.5rem', // 8px
+  md: '0.75rem', // 12px
+  base: '1rem', // 16px
+  lg: '1.5rem', // 24px
+  xl: '2rem', // 32px
+  '2xl': '3rem', // 48px
+  '3xl': '4rem', // 64px
 } as const;
 
+/**
+ * Border Radius - Very Rounded
+ */
 export const radius = {
   card: '20px',
   button: '12px',
@@ -48,6 +76,9 @@ export const radius = {
   full: '9999px',
 } as const;
 
+/**
+ * Emojis for UI with descriptions
+ */
 export const emojis = {
   participants: '👥',
   rounds: '🎵',
@@ -61,12 +92,18 @@ export const emojis = {
   microphone: '🎤',
 } as const;
 
+/**
+ * Emoji legend for user reference
+ */
 export const emojiLegend = [
   { emoji: emojis.participants, label: 'Players' },
   { emoji: emojis.rounds, label: 'Rounds' },
   { emoji: emojis.playlists, label: 'Playlists' },
 ] as const;
 
+/**
+ * Base Card Styles - Dark Theme
+ */
 export const cardStyles = {
   base: `
     bg-[#2a2a2a]
@@ -82,6 +119,7 @@ export const cardStyles = {
     duration-300
     ease-out
   `,
+
   coral: `
     bg-[#2a2a2a]
     rounded-[20px]
@@ -97,6 +135,7 @@ export const cardStyles = {
     transition-all
     duration-300
   `,
+
   skyBlue: `
     bg-[#2a2a2a]
     rounded-[20px]
@@ -110,6 +149,7 @@ export const cardStyles = {
     transition-all
     duration-300
   `,
+
   glass: `
     bg-[#2a2a2a]/80
     backdrop-blur-sm
@@ -117,6 +157,7 @@ export const cardStyles = {
     border
     border-[#3a3a3a]
   `,
+
   rainbow: `
     bg-[#2a2a2a]
     rounded-[20px]
@@ -134,6 +175,9 @@ export const cardStyles = {
   `,
 } as const;
 
+/**
+ * Button Styles - Mobile optimized with touch targets ≥44px
+ */
 export const buttonStyles = {
   primary: `
     bg-gradient-to-r
@@ -157,6 +201,7 @@ export const buttonStyles = {
     touch-manipulation
     text-base
   `,
+
   secondary: `
     bg-white
     text-[#FF6B6B]
@@ -173,6 +218,7 @@ export const buttonStyles = {
     touch-manipulation
     text-base
   `,
+
   icon: `
     min-w-[44px]
     min-h-[44px]
@@ -191,6 +237,7 @@ export const buttonStyles = {
     duration-200
     touch-manipulation
   `,
+
   spotify: `
     min-w-[44px]
     min-h-[44px]
@@ -210,6 +257,9 @@ export const buttonStyles = {
   `,
 } as const;
 
+/**
+ * Badge Styles - Mobile optimized with proper touch targets
+ */
 export const badgeStyles = {
   participants: `
     inline-flex
@@ -225,6 +275,7 @@ export const badgeStyles = {
     min-h-[44px]
     touch-manipulation
   `,
+
   rounds: `
     inline-flex
     items-center
@@ -239,6 +290,7 @@ export const badgeStyles = {
     min-h-[44px]
     touch-manipulation
   `,
+
   playlists: `
     inline-flex
     items-center
@@ -253,6 +305,7 @@ export const badgeStyles = {
     min-h-[44px]
     touch-manipulation
   `,
+
   featured: `
     inline-flex
     items-center
@@ -269,7 +322,11 @@ export const badgeStyles = {
   `,
 } as const;
 
+/**
+ * Tab Navigation Styles - Mobile optimized with 44px touch targets
+ */
 export const tabStyles = {
+  // Desktop Tabs (Top)
   desktopContainer: `
     hidden
     md:flex
@@ -278,6 +335,7 @@ export const tabStyles = {
     border-[#BFC0C0]
     px-6
   `,
+
   desktopTab: `
     px-6
     py-4
@@ -294,6 +352,7 @@ export const tabStyles = {
     touch-manipulation
     text-base
   `,
+
   desktopTabActive: `
     px-6
     py-4
@@ -305,6 +364,8 @@ export const tabStyles = {
     min-h-[44px]
     text-base
   `,
+
+  // Mobile Tabs (Bottom Nav)
   mobileContainer: `
     md:hidden
     fixed
@@ -320,6 +381,7 @@ export const tabStyles = {
     shadow-lg
     z-50
   `,
+
   mobileTab: `
     flex
     flex-col
@@ -334,6 +396,7 @@ export const tabStyles = {
     duration-200
     touch-manipulation
   `,
+
   mobileTabActive: `
     flex
     flex-col
@@ -350,11 +413,15 @@ export const tabStyles = {
   `,
 } as const;
 
+/**
+ * Search Input Styles - Mobile optimized
+ */
 export const searchStyles = {
   container: `
     w-full
     relative
   `,
+
   input: `
     w-full
     px-6
@@ -374,6 +441,7 @@ export const searchStyles = {
     min-h-[44px]
     touch-manipulation
   `,
+
   icon: `
     absolute
     right-6
@@ -384,6 +452,9 @@ export const searchStyles = {
   `,
 } as const;
 
+/**
+ * Accordion Styles - Mobile optimized with proper touch targets
+ */
 export const accordionStyles = {
   trigger: `
     w-full
@@ -402,6 +473,7 @@ export const accordionStyles = {
     min-h-[44px]
     touch-manipulation
   `,
+
   content: `
     px-6
     pb-6
@@ -409,6 +481,7 @@ export const accordionStyles = {
     slide-in-from-top-2
     duration-300
   `,
+
   chevron: `
     transition-transform
     duration-300
@@ -419,11 +492,15 @@ export const accordionStyles = {
     items-center
     justify-center
   `,
+
   chevronOpen: `
     rotate-180
   `,
 } as const;
 
+/**
+ * Grid Layout Styles
+ */
 export const gridStyles = {
   base: `
     grid
@@ -434,6 +511,7 @@ export const gridStyles = {
     lg:grid-cols-3
     lg:gap-8
   `,
+
   twoColumn: `
     grid
     grid-cols-1
@@ -443,6 +521,9 @@ export const gridStyles = {
   `,
 } as const;
 
+/**
+ * Container Styles - Dark Theme
+ */
 export const containerStyles = {
   page: `
     min-h-screen
@@ -450,11 +531,13 @@ export const containerStyles = {
     pb-24
     md:pb-8
   `,
+
   hero: `
     text-center
     py-12
     px-4
   `,
+
   content: `
     max-w-7xl
     mx-auto
@@ -463,6 +546,10 @@ export const containerStyles = {
   `,
 } as const;
 
+/**
+ * Typography Styles - Dark Theme with WCAG 2.1 AA Compliance
+ * Mobile-first with minimum 16px body text
+ */
 export const textStyles = {
   hero: `
     text-4xl
@@ -476,6 +563,7 @@ export const textStyles = {
     text-transparent
     mb-4
   `,
+
   heading: `
     text-2xl
     md:text-3xl
@@ -483,6 +571,7 @@ export const textStyles = {
     text-[#f0f0f0]
     mb-2
   `,
+
   subheading: `
     text-lg
     md:text-xl
@@ -490,26 +579,33 @@ export const textStyles = {
     text-[#e0e0e0]
     mb-4
   `,
+
   body: `
     text-base
     text-[#d0d0d0]
     leading-relaxed
   `,
+
   label: `
     text-base
     font-medium
     text-[#e0e0e0]
   `,
+
   caption: `
     text-sm
     text-[#b0b0b0]
   `,
+
   muted: `
     text-base
     text-[#b0b0b0]
   `,
 } as const;
 
+/**
+ * Animation Classes
+ */
 export const animations = {
   bounceIn: `
     animate-in
@@ -517,20 +613,30 @@ export const animations = {
     zoom-in-95
     duration-300
   `,
+
   slideUp: `
     animate-in
     slide-in-from-bottom-4
     duration-300
   `,
+
   pulse: `
     animate-pulse
   `,
 } as const;
 
-export const cn = (...classes: (string | undefined | null | false)[]) => {
+/**
+ * Utility: Combine class strings
+ */
+export const cn = (
+  ...classes: (string | undefined | null | false)[]
+) => {
   return classes.filter(Boolean).join(' ');
 };
 
+/**
+ * Decorative Background Emojis
+ */
 export const backgroundEmojis = [
   {
     emoji: '🎵',

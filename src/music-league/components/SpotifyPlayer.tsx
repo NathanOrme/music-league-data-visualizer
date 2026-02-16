@@ -1,6 +1,12 @@
 /**
  * @file SpotifyPlayer.tsx
  * @description Embedded Spotify player for Music League
+ *
+ * Features:
+ * - Spotify iframe embed with playlist support
+ * - Responsive sizing
+ * - Playful card design
+ * - Optional title and description
  */
 
 import {
@@ -16,12 +22,20 @@ interface SpotifyPlayerProps {
   description?: string;
 }
 
+/**
+ * SpotifyPlayer Component
+ *
+ * Embeds a Spotify playlist player with playful design
+ */
 export const SpotifyPlayer: FC<SpotifyPlayerProps> = ({
   playlistUrl,
   title,
   description,
 }) => {
-  const playlistId = playlistUrl.split('/playlist/')[1]?.split('?')[0];
+  // Extract playlist ID from URL
+  const playlistId = playlistUrl
+    .split('/playlist/')[1]
+    ?.split('?')[0];
 
   if (!playlistId) {
     return null;
@@ -31,16 +45,23 @@ export const SpotifyPlayer: FC<SpotifyPlayerProps> = ({
 
   return (
     <div className={cn(cardStyles.skyBlue, 'p-6')}>
+      {/* Header */}
       {(title || description) && (
         <div className="mb-4">
           {title && <h3 className={textStyles.heading}>{title}</h3>}
-          {description && <p className={textStyles.muted}>{description}</p>}
+          {description && (
+            <p className={textStyles.muted}>{description}</p>
+          )}
         </div>
       )}
 
-      <div className="relative w-full" style={{ paddingBottom: '380px' }}>
+      {/* Spotify Embed */}
+      <div
+        className="relative w-full"
+        style={{ paddingBottom: '380px' }}
+      >
         <iframe
-          className="absolute top-0 left-0 h-full w-full rounded-xl"
+          className="absolute top-0 left-0 w-full h-full rounded-xl"
           src={embedUrl}
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"

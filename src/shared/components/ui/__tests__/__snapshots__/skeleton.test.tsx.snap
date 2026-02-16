@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Skeleton can be used as a loading placeholder for various content types: card-skeleton 1`] = `
+<div
+  class="border rounded-lg p-4"
+>
+  <div
+    class="bg-accent animate-pulse rounded-md h-4 w-1/2 mb-4"
+    data-slot="skeleton"
+  />
+  <div
+    class="bg-accent animate-pulse rounded-md h-4 w-full mb-2"
+    data-slot="skeleton"
+  />
+  <div
+    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+    data-slot="skeleton"
+  />
+</div>
+`;
+
+exports[`Skeleton matches snapshot 1`] = `
+<div
+  class="bg-accent animate-pulse rounded-md"
+  data-slot="skeleton"
+/>
+`;

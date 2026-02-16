@@ -1,6 +1,15 @@
 /**
  * @file TabNavigation.tsx
  * @description Responsive tab navigation for Music League
+ *
+ * Desktop: Top tabs with border-bottom indicator
+ * Mobile: Fixed bottom navigation bar with icons + labels
+ *
+ * Features:
+ * - URL state persistence (?tab=playlists)
+ * - Touch-optimized (48px targets)
+ * - Accessible (keyboard navigation, ARIA)
+ * - Playful animations
  */
 
 import {
@@ -41,6 +50,13 @@ const tabs: TabConfig[] = [
   },
 ];
 
+/**
+ * TabNavigation Component
+ *
+ * Renders responsive tabs:
+ * - Desktop: Top tabs with hover states
+ * - Mobile: Bottom navigation with large touch targets
+ */
 export const TabNavigation: FC<TabNavigationProps> = ({
   activeTab,
   onTabChange,

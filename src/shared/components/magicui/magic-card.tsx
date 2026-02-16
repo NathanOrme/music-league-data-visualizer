@@ -1,7 +1,16 @@
 'use client';
 
-import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+} from 'motion/react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
@@ -13,21 +22,36 @@ interface MagicCardProps extends React.HTMLAttributes<HTMLDivElement> {
   gradientOpacity?: number;
   gradientFrom?: string;
   gradientTo?: string;
+  isRust?: boolean;
 }
 
 export function MagicCard({
   children,
   className,
   gradientSize = 200,
-  gradientColor = 'rgba(255, 255, 255, 0.1)',
+  gradientColor = 'rgba(255, 255, 255, 0.1)', // Subtle white glow for glass-morphism
   gradientOpacity = 0.4,
-  gradientFrom = '#9b59b6',
-  gradientTo = '#1abc9c',
+  gradientFrom: gradientFromProp = '#9b59b6', // Purple from design system
+  gradientTo: gradientToProp = '#1abc9c', // Teal from design system
+  isRust,
   ...props
 }: Readonly<MagicCardProps>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(-gradientSize);
   const mouseY = useMotionValue(-gradientSize);
+
+  const [gradientFrom, setGradientFrom] = useState(gradientFromProp);
+  const [gradientTo, setGradientTo] = useState(gradientToProp);
+
+  useEffect(() => {
+    if (isRust) {
+      setGradientFrom('#b6a559'); // Gold
+      setGradientTo('#f39c12'); // Orange
+    } else {
+      setGradientFrom(gradientFromProp);
+      setGradientTo(gradientToProp);
+    }
+  }, [isRust, gradientFromProp, gradientToProp]);
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -81,8 +105,8 @@ export function MagicCard({
       ref={cardRef}
       className={cn(
         'group relative rounded-[inherit] transition-all duration-300',
-        'bg-gradient-to-br from-black/40 via-black/60 to-black/80',
-        'border border-white/10 shadow-2xl shadow-black/50 backdrop-blur-xl',
+        'bg-gradient-to-br from-black/40 via-black/60 to-black/80', // Glass-morphism base
+        'backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50',
         className,
       )}
       {...props}
@@ -93,8 +117,8 @@ export function MagicCard({
         style={{
           background: useMotionTemplate`
           radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px,
-          ${gradientFrom},
-          ${gradientTo},
+          ${gradientFrom}, 
+          ${gradientTo}, 
           transparent 100%
           )
           `,

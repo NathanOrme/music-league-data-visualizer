@@ -13,8 +13,24 @@ import {
   forwardRef,
 } from 'react';
 
+/**
+ * Accordion component.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {React.ComponentProps<typeof AccordionPrimitive.Root>} props.Root - The root element of the accordion component.
+ * @returns {JSX.Element}
+ */
 const Accordion = Root;
 
+/**
+ * AccordionItem component.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>} props.Item - The item element of the accordion component.
+ * @returns {JSX.Element}
+ */
 const AccordionItem = forwardRef<
   ComponentRef<typeof Item>,
   ComponentPropsWithoutRef<typeof Item>
@@ -23,6 +39,14 @@ const AccordionItem = forwardRef<
 ));
 AccordionItem.displayName = 'AccordionItem';
 
+/**
+ * AccordionTrigger component.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>} props.Trigger - The trigger element of the accordion component.
+ * @returns {JSX.Element}
+ */
 const AccordionTrigger = forwardRef<
   ComponentRef<typeof Trigger>,
   ComponentPropsWithoutRef<typeof Trigger>
@@ -43,19 +67,32 @@ const AccordionTrigger = forwardRef<
 ));
 AccordionTrigger.displayName = Trigger.displayName;
 
+/**
+ * AccordionContent component.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>} props.Content - The content element of the accordion component.
+ * @returns {JSX.Element}
+ */
 const AccordionContent = forwardRef<
   ComponentRef<typeof Content>,
   ComponentPropsWithoutRef<typeof Content>
 >(({ className, children, ...props }, ref) => (
   <Content
     ref={ref}
-    className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all"
+    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
-    <div className={cn('pt-0 pb-4', className)}>{children}</div>
+    <div className={cn('pb-4 pt-0', className)}>{children}</div>
   </Content>
 ));
 
 AccordionContent.displayName = Content.displayName;
 
-export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+};
