@@ -11,13 +11,14 @@ League and displays league standings, rounds, and Spotify playlists.
 
 ## Tech Stack
 
-- **React 19** with TypeScript
+- **React 19** with TypeScript (strict mode)
 - **Vite 7** for building
 - **Tailwind CSS 4** for styling
 - **React Router 7** for navigation
-- **Radix UI** for accessible components
+- **Radix UI** for accessible components (accordion, dialog, dropdown-menu, select, tabs, and more)
 - **Motion** (Framer Motion) for animations
 - **JSZip** and **PapaParse** for data processing
+- **Lucide React** for icons
 
 ## Essential Commands
 
@@ -28,7 +29,7 @@ npm run build            # Production build
 npm run preview          # Preview production build
 
 # Quality
-npm run lint             # ESLint checks
+npm run lint             # ESLint checks (--max-warnings=0)
 npm run lint:fix         # Auto-fix lint issues
 npm run format           # Prettier formatting
 npm run format:check     # Check formatting
@@ -36,32 +37,17 @@ npm run format:check     # Check formatting
 # Testing
 npm run test             # Run Vitest tests
 npm run test:watch       # Watch mode
+npx vitest run src/path/to/file.test.tsx  # Run a single test file
 ```
 
 ## Architecture
 
-### Directory Structure
+### Data Flow
 
-```
-src/
-├── config/
-│   └── leagues.config.ts      # Dynamic league configuration
-├── music-league/
-│   ├── components/            # UI components
-│   ├── contexts/              # React contexts (LeagueDataContext)
-│   ├── pages/                 # Page components
-│   └── styles/                # Design system
-├── shared/
-│   ├── components/            # Reusable components
-│   │   ├── ui/                # Base UI (Button, Card, Accordion)
-│   │   └── magicui/           # Magic card effects
-│   ├── lib/                   # Utilities (cn function)
-│   ├── types/                 # TypeScript types
-│   └── utils/                 # Data processing, logging
-├── App.tsx                    # Root component with routing
-├── main.tsx                   # Entry point
-└── index.css                  # Global styles + Tailwind
-```
+1. **Configuration** — `src/config/leagues.config.ts` defines categories and league files
+2. **Loading** — `src/music-league/contexts/LeagueDataContext.tsx` fetches ZIP files from `/data/{category}/`
+3. **Processing** — `src/shared/utils/dataProcessing.ts` extracts CSVs and computes standings
+4. **Display** — Components consume context and render league data
 
 ### Key Files
 
@@ -70,39 +56,22 @@ src/
 | `src/config/leagues.config.ts` | League categories and data source configuration |
 | `src/music-league/contexts/LeagueDataContext.tsx` | Data fetching and state management |
 | `src/shared/utils/dataProcessing.ts` | ZIP/CSV parsing and data transformation |
-| `src/music-league/styles/playful-design-system.ts` | Design tokens and style constants |
+| `src/music-league/styles/playful-design-system.ts` | Design tokens and component style classes |
+| `src/music-league/pages/SimpleMusicLeaguePage.tsx` | Main page layout |
+| `src/music-league/components/TabNavigation.tsx` | Tab navigation |
 
-### Data Flow
+### Layout
 
-1. **Configuration** - `leagues.config.ts` defines categories and league files
-2. **Loading** - `LeagueDataContext` fetches ZIP files from `/data/{category}/`
-3. **Processing** - `dataProcessing.ts` extracts CSVs and computes standings
-4. **Display** - Components consume context and render league data
+- `src/music-league/` — Domain-specific components, contexts, pages, styles
+- `src/shared/` — Reusable components (`ui/`, `magicui/`), types, utilities
+- `src/config/` — League configuration
+- `public/data/{category-id}/` — Static ZIP data files
 
-### Adding New Leagues
+### State Management
 
-1. Place ZIP file in `public/data/{category-id}/`
-2. Add entry to `LEAGUE_CATEGORIES` in `src/config/leagues.config.ts`:
-
-```typescript
-{
-  id: 'category-id',
-  name: 'Category Name',
-  leagues: [
-    { id: 'league-id', title: 'League Title', fileName: 'file.zip' }
-  ]
-}
-```
-
-## Design System
-
-The app uses a custom playful design system with:
-
-- **Colors**: Coral (#FF6B6B), Sky Blue (#4ECDC4), Sunshine (#FFE66D)
-- **Dark theme**: Background #1a1a1a, Cards #2a2a2a
-- **Rounded corners**: 20px for cards
-- **Touch targets**: Minimum 44px
-- **Emojis**: Used for visual indicators (👥 participants, 🎵 rounds, 🎧 playlists)
+- **Context API** for global state (league data)
+- **URL params** for tab navigation (`?tab=playlists`)
+- **Local state** for component-specific UI state
 
 ## Key Patterns
 
@@ -117,73 +86,48 @@ import { League } from '@/shared/utils/dataProcessing';
 
 ### Component Structure
 
-Components follow this pattern:
+Components use the design system's style classes and `FC` type:
 
 ```typescript
 import { styles } from '@/music-league/styles/playful-design-system';
 import type { FC } from 'react';
-
-interface MyComponentProps {
-  // props
-}
 
 export const MyComponent: FC<MyComponentProps> = ({ props }) => {
   return <div className={styles.card}>{/* content */}</div>;
 };
 ```
 
-### State Management
+### ESLint Conventions
 
-- **Context API** for global state (league data)
-- **URL params** for tab navigation (`?tab=playlists`)
-- **Local state** for component-specific UI state
+- Unused variables must be prefixed with `_` (e.g., `_unusedParam`)
+- `--max-warnings=0` means all warnings are treated as errors in CI
+- `@typescript-eslint/no-explicit-any` is set to warn
+
+## Design System
+
+Defined in `src/music-league/styles/playful-design-system.ts`:
+
+- **Colors**: Coral (#FF6B6B), Sky Blue (#4ECDC4), Sunshine (#FFE66D)
+- **Dark theme**: Background #1a1a1a, Cards #2a2a2a
+- **Rounded corners**: 20px for cards
+- **Touch targets**: Minimum 44px
+- **Emojis**: Used for visual indicators (👥 participants, 🎵 rounds, 🎧 playlists)
 
 ## Testing
 
-Tests use Vitest with React Testing Library:
+- **Vitest** with **jsdom** environment and `globals: true` (no need to import `describe`/`it`/`expect`)
+- **React Testing Library** for component tests
+- Tests live in `__tests__/` directories adjacent to source files
+- Setup file: `src/setupTests.ts`
 
-```typescript
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+## Adding New Leagues
 
-describe('MyComponent', () => {
-  it('renders correctly', () => {
-    render(<MyComponent />);
-    expect(screen.getByText('Expected')).toBeInTheDocument();
-  });
-});
-```
+1. Place ZIP file in `public/data/{category-id}/`
+2. Add entry to `LEAGUE_CATEGORIES` in `src/config/leagues.config.ts`
 
-## Common Tasks
+## CI
 
-### Modify the design system
-
-Edit `src/music-league/styles/playful-design-system.ts` - contains all color
-constants, spacing, typography, and component style classes.
-
-### Add a new UI component
-
-1. Create in `src/shared/components/ui/`
-2. Export from `src/shared/components/ui/index.ts`
-3. Use Radix UI primitives for accessibility
-
-### Debug data loading
-
-- Check browser console for fetch errors
-- Verify ZIP files exist in `public/data/{category}/`
-- Check `leagues.config.ts` for correct file paths
-
-### Change the layout
-
-Main page layout is in `src/music-league/pages/SimpleMusicLeaguePage.tsx`.
-Tab navigation is in `src/music-league/components/TabNavigation.tsx`.
-
-## Dependencies Notes
-
-- **JSZip**: Used for reading ZIP archives client-side
-- **PapaParse**: CSV parsing with header support
-- **Motion**: Animations via Framer Motion
-- **Radix UI**: Only `@radix-ui/react-accordion` and `@radix-ui/react-slot` used
+GitHub Actions runs lint, format check, and build on every push and PR.
 
 ## Environment
 
