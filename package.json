@@ -11,8 +11,8 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "jest --config jest.config.cjs",
+    "test:watch": "jest --config jest.config.cjs --watch"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -41,10 +41,13 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
     "@tailwindcss/vite": "^4.1.18",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.0.3",
     "@types/papaparse": "^5.3.15",
     "@types/react": "^19.2.9",
@@ -55,11 +58,14 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "jsdom": "^26.0.0",
     "prettier": "^3.8.0",
     "prettier-plugin-organize-imports": "^4.2.0",
     "prettier-plugin-tailwindcss": "^0.7.0",
     "tailwindcss": "^4.1.11",
+    "ts-jest": "^29.4.6",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "6",
